@@ -47,8 +47,7 @@
         <asp:UpdatePanel ID="upPanel2" runat="server">
             <ContentTemplate>
             <div style="border:2px solid red;padding:6px;color:red;display:none;">
-                <h3>You can hide this part by set style="display:none;"</h3>
-                <h3>For Demo purpose, cascade situation is not handled. See the code behind</h3>
+
                 <asp:TextBox ID="txtNodeValue" runat="server"></asp:TextBox>
                 <asp:TextBox ID="txtNodeTreeName" runat="server"></asp:TextBox>
                 <asp:TextBox ID="txtParentValue" runat="server"></asp:TextBox>
@@ -58,8 +57,8 @@
             <table id="sample" width="100%">
                 <tr>
                     <th><h3><asp:Literal ID="aslTreeOne" runat="server" Text="TreeOne"></asp:Literal></h3></th>
-                    <th></th>
-                    <th></th>
+                    <th>Selected Tree One Root : <asp:DropDownList runat="server" ID="ddlRoot1" DataValueField="ProductID" DataTextField="ProductName" OnSelectedIndexChanged="ddlRoot1_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList> </th>
+                    <th>Selected Tree Two Root : <asp:DropDownList runat="server" ID="ddlRoot2" DataValueField="ProductID" DataTextField="ProductName" OnSelectedIndexChanged="ddlRoot2_SelectedIndexChanged" AutoPostBack="true"></asp:DropDownList> </th>
                     <th><h3><asp:Literal ID="Literal1" runat="server" Text="TreeTwo"></asp:Literal></h3></th>
                 </tr>
                 <tr valign="top">
@@ -68,15 +67,13 @@
                         <astv:ASTreeView ID="astvMyTree1" 
                             runat="server"
                             BasePath="~/Scripts/astreeview/"
-                            DataTableRootNodeValue="0"
-                            EnableRoot="true"
                             EnableCheckbox="false"
                             EnableNodeIcon="false"
-                            RootNodeText="Root" 
                             EnableNodeSelection="true" 
                             EnableDragDrop="true" 
                             EnableTreeLines="true"
                             AutoPostBack="true"
+                            RelatedTrees="astvMyTree2" 
                             OnOnSelectedNodeChanged="astvMyTree_OnSelectedNodeChanged"
                             EnableContextMenuAdd="false"
                             OnNodeDragAndDropCompletedScript="dndCompletedHandler( elem, newParent )"
@@ -121,15 +118,14 @@
                         <astv:ASTreeView ID="astvMyTree2" 
                             runat="server"
                             BasePath="~/Scripts/astreeview/"
-                            DataTableRootNodeValue="0"
                             EnableRoot="true"
                             EnableCheckbox="false"
                             EnableNodeIcon="false"
-                            RootNodeText="Root" 
                             EnableNodeSelection="true" 
                             EnableDragDrop="true" 
                             EnableTreeLines="true"
                             AutoPostBack="true"
+                            RelatedTrees="astvMyTree1" 
                             OnOnSelectedNodeChanged="astvMyTree2_OnSelectedNodeChanged"
                             EnableContextMenuAdd="false"
                             OnNodeDragAndDropCompletedScript="dndCompletedHandler( elem, newParent )"
