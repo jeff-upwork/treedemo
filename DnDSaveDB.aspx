@@ -40,6 +40,14 @@
 </head>
 <body>
     <form id="form1" runat="server">
+        <div style="float:left;width:50%;">
+            Hello <asp:Label runat="server" ID="lbUsername" /> (<a href="Default.aspx">logout</a>)
+            
+        </div>
+        <div style="text-align:right;float:left;">Share selected root node to : 
+            <asp:TextBox ID="tbShare" runat="server" ToolTip="Enter a Username" Placeholder="Enter a Username" />
+            <asp:Button ID="btnShare" runat="server" Text="Share" OnClick="btnShare_Click" />
+        </div>
     <div>
         <asp:Literal ID="lASTreeViewThemeCssFile" runat="server"></asp:Literal>
         <asp:ScriptManager ID="sm" runat=server></asp:ScriptManager>

@@ -19,6 +19,8 @@ namespace Goldtect.ASTreeViewDemo
     {
         protected void Page_Load( object sender, EventArgs e )
         {
+            lbUsername.Text = Session["UserName"].ToString();
+
             if (Session["UserName"]==null)
                 Response.Redirect("Default.aspx");
             if (Request.QueryString["ID"] != null)
@@ -246,6 +248,17 @@ namespace Goldtect.ASTreeViewDemo
         {
             this.astvMyTree2.RootNode.Clear();
             BindData();
+        }
+
+        protected void btnShare_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(tbShare.Text))
+                return;
+            if (String.IsNullOrEmpty(ddlRoot1.SelectedValue))
+                return;
+
+            OleDbHelper.ExecuteNonQuery(base.NorthWindConnectionString, CommandType.Text, string.Format("INSERT INTO UserAccess (ProductId, UserName) VALUES({0}, '{1}')", ddlRoot1.SelectedValue, tbShare.Text));
+           
         }
     }
 }
