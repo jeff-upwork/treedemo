@@ -139,7 +139,6 @@
                             OnNodeDragAndDropCompletedScript="dndCompletedHandler( elem, newParent )"
                             />
                     </td>
-                    
                 </tr>
             </table>
             </ContentTemplate>

@@ -116,24 +116,34 @@ namespace Goldtect.ASTreeViewDemo
             if(txtNodeTreeName.Text.Equals(txtParentTreeName.Text))
             {
                 XmlDocument doc = astvMyTree1.GetTreeViewXML();
-                doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
+                if(cekOwner(ddlRoot1.SelectedValue))
+                    doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
                 BindData();
             }
             else if (txtNodeTreeName.Text.Equals("astvMyTree1"))
             {
                 XmlDocument doc = astvMyTree2.GetTreeViewXML();
-                doc.Save(Server.MapPath("~/" + ddlRoot2.SelectedValue + ".xml"));
+                if (cekOwner(ddlRoot2.SelectedValue))
+                    doc.Save(Server.MapPath("~/" + ddlRoot2.SelectedValue + ".xml"));
                 BindData();
             }
             else if (txtNodeTreeName.Text.Equals("astvMyTree2"))
             {
                 XmlDocument doc = astvMyTree1.GetTreeViewXML();
-                doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
+                if (cekOwner(ddlRoot1.SelectedValue))
+                    doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
                 BindData();
             }
         }
 
-        
+        private bool cekOwner(string productID)
+        {
+            String owner = (string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, "select Username from ProductsTree where ProductID=" + productID);
+            if (owner.Equals(Session["UserName"].ToString()))
+                return true;
+            else
+                return false;
+        }
 
         protected void astvMyTree_OnSelectedNodeChanged(object src, ASTreeViewNodeSelectedEventArgs e)
         {
@@ -144,6 +154,9 @@ namespace Goldtect.ASTreeViewDemo
                 lblRoot.Text = selectedNode.NodeValue;
 
                 tbItem.Text = (string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, "select ProductName from ProductsTree where ProductID=" + lblRoot.Text);
+                btnUpdate.Enabled = cekOwner(ddlRoot1.SelectedValue);
+                if (btnUpdate.Enabled)
+                    btnUpdate.Enabled = cekOwner(lblRoot.Text);
             }
         }
         
@@ -155,6 +168,9 @@ namespace Goldtect.ASTreeViewDemo
             {
                 lblRoot2.Text = selectedNode.NodeValue;
                 tbItem2.Text = (string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, "select ProductName from ProductsTree where ProductID=" + lblRoot2.Text);
+                btnUpdate2.Enabled = cekOwner(ddlRoot2.SelectedValue);
+                if (btnUpdate2.Enabled)
+                    btnUpdate2.Enabled = cekOwner(lblRoot2.Text);
             }
         }
 
@@ -242,12 +258,14 @@ namespace Goldtect.ASTreeViewDemo
         {
             this.astvMyTree1.RootNode.Clear();
             BindData();
+            btnAdd.Enabled = cekOwner(ddlRoot1.SelectedValue);
         }
 
         protected void ddlRoot2_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.astvMyTree2.RootNode.Clear();
             BindData();
+            btnAdd2.Enabled = cekOwner(ddlRoot2.SelectedValue);
         }
 
         protected void btnShare_Click(object sender, EventArgs e)
