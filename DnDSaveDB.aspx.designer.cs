@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Goldtect.ASTreeViewDemo {
+namespace ASTreeViewDemo {
     
     
     public partial class DnDSaveDB {
@@ -56,6 +56,15 @@ namespace Goldtect.ASTreeViewDemo {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnShare;
+        
+        /// <summary>
+        /// btnSave control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSave;
         
         /// <summary>
         /// lASTreeViewThemeCssFile control.
@@ -181,7 +190,7 @@ namespace Goldtect.ASTreeViewDemo {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblRoot;
+        protected global::System.Web.UI.WebControls.TextBox lblRoot;
         
         /// <summary>
         /// tbItem control.
@@ -217,7 +226,7 @@ namespace Goldtect.ASTreeViewDemo {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblRoot2;
+        protected global::System.Web.UI.WebControls.TextBox lblRoot2;
         
         /// <summary>
         /// tbItem2 control.

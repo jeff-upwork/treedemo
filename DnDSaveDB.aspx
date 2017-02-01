@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DnDSaveDB.aspx.cs" Inherits="Goldtect.ASTreeViewDemo.DnDSaveDB" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DnDSaveDB.aspx.cs" Inherits="ASTreeViewDemo.DnDSaveDB" %>
 <%@ Register Assembly="Goldtect.ASTreeView" Namespace="Goldtect" TagPrefix="astv" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,10 +31,20 @@
             document.getElementById("<%#txtNodeTreeName.ClientID%>").value = nodeAdditionalAttr.treeName;
             document.getElementById("<%#txtParentValue.ClientID%>").value = parentValue;
             document.getElementById("<%#txtParentTreeName.ClientID%>").value = parentAdditionalAttr.treeName;
-
-            document.getElementById("<%#btnSaveDragDrop.ClientID%>").click();
-
         }
+
+        function nodeSelectHandler(elem) {
+            var nodeAdditionalAttr = JSON.parse(elem.parentNode.getAttribute("additional-attributes"));
+            document.getElementById("<%#tbItem.ClientID%>").value = nodeAdditionalAttr.LongText;
+            document.getElementById("<%#lblRoot.ClientID%>").value = elem.parentNode.getAttribute("treeNodeValue");
+        }
+
+        function nodeSelectHandler2(elem) {
+            var nodeAdditionalAttr = JSON.parse(elem.parentNode.getAttribute("additional-attributes"));
+            document.getElementById("<%#tbItem2.ClientID%>").value = nodeAdditionalAttr.LongText;
+            document.getElementById("<%#lblRoot2.ClientID%>").value = elem.parentNode.getAttribute("treeNodeValue");
+        }
+
     </script>
     
 </head>
@@ -47,6 +57,7 @@
         <div style="text-align:right;float:left;">Share selected root node to : 
             <asp:TextBox ID="tbShare" runat="server" ToolTip="Enter a Username" Placeholder="Enter a Username" />
             <asp:Button ID="btnShare" runat="server" Text="Share" OnClick="btnShare_Click" />
+            <asp:Button ID="btnSaveDragDrop" runat="server" Text="Save My Root" OnClick="btnSaveDragDrop_Click" />
         </div>
     <div>
         <asp:Literal ID="lASTreeViewThemeCssFile" runat="server"></asp:Literal>
@@ -60,7 +71,6 @@
                 <asp:TextBox ID="txtNodeTreeName" runat="server"></asp:TextBox>
                 <asp:TextBox ID="txtParentValue" runat="server"></asp:TextBox>
                 <asp:TextBox ID="txtParentTreeName" runat="server"></asp:TextBox>
-                <asp:Button ID="btnSaveDragDrop" runat="server" Text="Save Drag & Drop" OnClick="btnSaveDragDrop_Click" />
             </div>
             <table id="sample" width="100%">
                 <tr>
@@ -75,22 +85,24 @@
                         <astv:ASTreeView ID="astvMyTree1" 
                             runat="server"
                             BasePath="~/Scripts/astreeview/"
+                            DataTableRootNodeValue="0"
                             EnableCheckbox="false"
                             EnableNodeIcon="false"
                             EnableNodeSelection="true" 
+                            EnableXMLValidation="true"
                             EnableDragDrop="true" 
                             EnableTreeLines="true"
-                            AutoPostBack="true"
+                            AutoPostBack="false"
                             RelatedTrees="astvMyTree2" 
-                            OnOnSelectedNodeChanged="astvMyTree_OnSelectedNodeChanged"
                             EnableContextMenuAdd="false"
                             OnNodeDragAndDropCompletedScript="dndCompletedHandler( elem, newParent )"
+                            OnNodeSelectedScript="nodeSelectHandler(elem)"
                             />
                     </td>
                     <td  style="background-color:yellow"> 
                         <table width="100%" border="0">
                             <tr>
-                                <td><asp:Label ID="lblRoot" runat="server" Text="0" visible="false" />
+                                <td><asp:TextBox ID="lblRoot" runat="server" Text="0" visible="true" />
                         Selected Left Node :</td>
                             </tr>
                              <tr>
@@ -107,7 +119,7 @@
                     <td  style="background-color:cyan"> 
                         <table width="100%" border="0">
                             <tr>
-                                <td><asp:Label ID="lblRoot2" runat="server" Text="0" visible="false" /> Selected Right Node :</td>
+                                <td><asp:TextBox ID="lblRoot2" runat="server" Text="0" visible="true" /> Selected Right Node :</td>
                             </tr>
                             <tr>
                                 <td><asp:TextBox ID="tbItem2" runat="server" Text="" Rows="35" TextMode="multiline" Width="100%" /> </td>
@@ -132,11 +144,12 @@
                             EnableNodeSelection="true" 
                             EnableDragDrop="true" 
                             EnableTreeLines="true"
-                            AutoPostBack="true"
+                            AutoPostBack="false"
                             RelatedTrees="astvMyTree1" 
                             OnOnSelectedNodeChanged="astvMyTree2_OnSelectedNodeChanged"
                             EnableContextMenuAdd="false"
                             OnNodeDragAndDropCompletedScript="dndCompletedHandler( elem, newParent )"
+                            OnNodeSelectedScript2="nodeSelectHandler(elem)"
                             />
                     </td>
                 </tr>

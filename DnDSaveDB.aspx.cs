@@ -11,9 +11,11 @@ using System.Xml;
 using System.IO;
 using System.Web.UI.HtmlControls;
 
+using Goldtect;
+
 #endregion
 
-namespace Goldtect.ASTreeViewDemo
+namespace ASTreeViewDemo
 {
     public partial class DnDSaveDB : PageBase
     {
@@ -33,16 +35,9 @@ namespace Goldtect.ASTreeViewDemo
                ddlRoot2.DataSource = OleDbHelper.ExecuteDataset(base.NorthWindConnectionString, CommandType.Text, string.Format("Select ua.productID,pt.ProductName from UserAccess ua inner join ProductsTree pt on pt.ProductID=ua.ProductID where pt.parentID=0 and ua.username='{0}'", Session["UserName"]));
                ddlRoot2.DataBind();
                BindData();
+               this.astvMyTree1.ClearNodesSelection();
+               this.astvMyTree2.ClearNodesSelection();
             }
-        }
-
-        private void createNewTree()
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(Server.MapPath("~/template.xml"));
-            doc.Save(Server.MapPath("~/" + Session["UserName"] + ".xml"));
-
-            AddNewNode("Sample Node");
         }
 
         private void BindCombo1()
@@ -99,6 +94,14 @@ namespace Goldtect.ASTreeViewDemo
             ASTreeView.ASTreeNodeHandlerDelegate nodeDelegate1 = delegate(ASTreeViewNode node)
             {
                 node.AdditionalAttributes.Add(new KeyValuePair<string, string>("treeName", "astvMyTree1"));
+                if(!String.IsNullOrEmpty(node.NodeValue))
+                {
+                    OleDbDataReader reader = OleDbHelper.ExecuteReader(base.NorthWindConnectionString, CommandType.Text, "select ProductName,UserName from ProductsTree where ProductID=" + node.NodeValue);
+                    reader.Read();
+                    node.AdditionalAttributes.Add(new KeyValuePair<string, string>("LongText", reader.GetValue(0).ToString()));
+                    node.AdditionalAttributes.Add(new KeyValuePair<string, string>("Owner", reader.GetValue(1).ToString()));
+                }
+               
             };
 
             astvMyTree1.TraverseTreeNode(this.astvMyTree1.RootNode, nodeDelegate1);
@@ -106,34 +109,58 @@ namespace Goldtect.ASTreeViewDemo
             ASTreeView.ASTreeNodeHandlerDelegate nodeDelegate2 = delegate(ASTreeViewNode node)
             {
                 node.AdditionalAttributes.Add(new KeyValuePair<string, string>("treeName", "astvMyTree2"));
+                if (!String.IsNullOrEmpty(node.NodeValue))
+                {
+                    OleDbDataReader reader = OleDbHelper.ExecuteReader(base.NorthWindConnectionString, CommandType.Text, "select ProductName,UserName from ProductsTree where ProductID=" + node.NodeValue);
+                    reader.Read();
+                    node.AdditionalAttributes.Add(new KeyValuePair<string, string>("LongText", reader.GetValue(0).ToString()));
+                    node.AdditionalAttributes.Add(new KeyValuePair<string, string>("Owner", reader.GetValue(1).ToString()));
+                }
             };
 
             astvMyTree2.TraverseTreeNode(this.astvMyTree2.RootNode, nodeDelegate2);
         }
 
-        protected void btnSaveDragDrop_Click(object sender, EventArgs e)
+        private void saveAll()
         {
-            if(txtNodeTreeName.Text.Equals(txtParentTreeName.Text))
+            if (cekOwner(astvMyTree1.RootNodeValue))
             {
                 XmlDocument doc = astvMyTree1.GetTreeViewXML();
-                if(cekOwner(ddlRoot1.SelectedValue))
-                    doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
+                doc.Save(Server.MapPath("~/" + astvMyTree1.RootNodeValue + ".xml"));
                 BindData();
             }
-            else if (txtNodeTreeName.Text.Equals("astvMyTree1"))
+            if (cekOwner(astvMyTree2.RootNodeValue))
             {
                 XmlDocument doc = astvMyTree2.GetTreeViewXML();
-                if (cekOwner(ddlRoot2.SelectedValue))
-                    doc.Save(Server.MapPath("~/" + ddlRoot2.SelectedValue + ".xml"));
+                doc.Save(Server.MapPath("~/" + astvMyTree2.RootNodeValue + ".xml"));
                 BindData();
             }
-            else if (txtNodeTreeName.Text.Equals("astvMyTree2"))
-            {
-                XmlDocument doc = astvMyTree1.GetTreeViewXML();
-                if (cekOwner(ddlRoot1.SelectedValue))
-                    doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
-                BindData();
-            }
+        }
+
+        protected void btnSaveDragDrop_Click(object sender, EventArgs e)
+        {
+            saveAll();
+            //if(txtNodeTreeName.Text.Equals(txtParentTreeName.Text))
+            //{
+            //    XmlDocument doc = astvMyTree1.GetTreeViewXML();
+            //    if(cekOwner(ddlRoot1.SelectedValue))
+            //        doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
+            //    BindData();
+            //}
+            //else if (txtNodeTreeName.Text.Equals("astvMyTree1"))
+            //{
+            //    XmlDocument doc = astvMyTree2.GetTreeViewXML();
+            //    if (cekOwner(ddlRoot2.SelectedValue))
+            //        doc.Save(Server.MapPath("~/" + ddlRoot2.SelectedValue + ".xml"));
+            //    BindData();
+            //}
+            //else if (txtNodeTreeName.Text.Equals("astvMyTree2"))
+            //{
+            //    XmlDocument doc = astvMyTree1.GetTreeViewXML();
+            //    if (cekOwner(ddlRoot1.SelectedValue))
+            //        doc.Save(Server.MapPath("~/" + ddlRoot1.SelectedValue + ".xml"));
+            //    BindData();
+            //}
         }
 
         private bool cekOwner(string productID)
@@ -178,8 +205,13 @@ namespace Goldtect.ASTreeViewDemo
         {
             if (String.IsNullOrEmpty(tbItem.Text))
                 return;
+
+            if (String.IsNullOrEmpty(lblRoot.Text))
+                return;
+
             OleDbHelper.ExecuteNonQuery(base.NorthWindConnectionString, CommandType.Text, string.Format("Update ProductsTree set ProductName='{0}' where ProductId={1}", tbItem.Text, lblRoot.Text));
             String qry = "select SUBSTRING([ProductName], 1, CASE CHARINDEX(CHAR(10), [ProductName]) WHEN 0 THEN LEN([ProductName]) ELSE CHARINDEX(char(10), [ProductName]) - 1 END) as ProductName from [ProductsTree] where ProductID=" + lblRoot.Text;
+
             ASTreeViewNode selectedNode = astvMyTree1.FindByValue(lblRoot.Text);
             selectedNode.NodeText = (string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, qry);
 
@@ -201,6 +233,7 @@ namespace Goldtect.ASTreeViewDemo
             String qry = "select SUBSTRING([ProductName], 1, CASE CHARINDEX(CHAR(10), [ProductName]) WHEN 0 THEN LEN([ProductName]) ELSE CHARINDEX(char(10), [ProductName]) - 1 END) as ProductName from [ProductsTree] where ProductID=" + newId.ToString();
 
             ASTreeViewNode newNode = new ASTreeViewNode((string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, qry), newId.ToString());
+            List<KeyValuePair<string, string>> attrib=new List<KeyValuePair<string, string>>();
 
             ASTreeViewNode rootNode = astvMyTree1.FindByValue(ddlRoot1.Text);
             rootNode.AppendChild(newNode);
@@ -224,8 +257,13 @@ namespace Goldtect.ASTreeViewDemo
         {
             if (String.IsNullOrEmpty(tbItem2.Text))
                 return;
+
+            if (String.IsNullOrEmpty(lblRoot2.Text))
+                return;
+
             OleDbHelper.ExecuteNonQuery(base.NorthWindConnectionString, CommandType.Text, string.Format("Update ProductsTree set ProductName='{0}' where ProductId={1}", tbItem2.Text, lblRoot2.Text));
             String qry = "select SUBSTRING([ProductName], 1, CASE CHARINDEX(CHAR(10), [ProductName]) WHEN 0 THEN LEN([ProductName]) ELSE CHARINDEX(char(10), [ProductName]) - 1 END) as ProductName from [ProductsTree] where ProductID=" + lblRoot2.Text;
+            
             ASTreeViewNode selectedNode = astvMyTree2.FindByValue(lblRoot2.Text);
             selectedNode.NodeText = (string)OleDbHelper.ExecuteScalar(base.NorthWindConnectionString, CommandType.Text, qry);
             XmlDocument doc = astvMyTree2.GetTreeViewXML();
@@ -256,6 +294,7 @@ namespace Goldtect.ASTreeViewDemo
 
         protected void ddlRoot1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            saveAll();
             this.astvMyTree1.RootNode.Clear();
             BindData();
             btnAdd.Enabled = cekOwner(ddlRoot1.SelectedValue);
@@ -263,6 +302,7 @@ namespace Goldtect.ASTreeViewDemo
 
         protected void ddlRoot2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            saveAll();
             this.astvMyTree2.RootNode.Clear();
             BindData();
             btnAdd2.Enabled = cekOwner(ddlRoot2.SelectedValue);
